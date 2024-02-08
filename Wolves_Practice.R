@@ -57,7 +57,21 @@ set.seed(123)
 DataFrame$Season <- sample(1:3)
 
 print(DataFrame)
+view(DataFrame)
 
-#anova_result <- aov(DataFrame$DietItem ~ DataFrame$ReadCount, data=DataFrame
 
+
+value_counts <- table(DataFrame$Season)
+barplot(value_counts)
+
+pie(value_counts) # this shows that there are basically the same number of samples per season 
+
+
+## Calculating ANOVA! 
+
+# note to self: okay I think I need to recreate this dataframe so that there is a column for each season rather than a "season" column...? 
+
+anova_result <- aov(ReadCount[] ~ Season, data=DataFrame)
+
+print(anova_result)
 
