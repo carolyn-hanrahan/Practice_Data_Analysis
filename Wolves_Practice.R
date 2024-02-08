@@ -31,16 +31,33 @@ view(DataFrame)
 ## Let's graph read counts
 barplot(DataFrame$DietItem~DataFrame$ReadCount)
 
-barplot(DataFrame$ReadCount,
-        names.arg = unique(DataFrame$DietItem),
+barplot(as.numeric(DataFrame$ReadCount),
+        names.arg = DataFrame$DietItem,
         col = "skyblue",
         main = "Read Count by Diet Type",
         xlab = "Diet type",
         ylab = "Read count")
 
 
+## Let's make a different graph....hmmmmmmmmmmmm
+
+ggplot(data=DataFrame) +
+  aes(x=DietItem,y=ReadCount) + 
+  geom_boxplot() + 
+  theme(legend.position="none")
+ 
+
 ##ANOVA 
 
-anova_result <- aov(DataFrame$DietItem ~ DataFrame$ReadCount, data=DataFrame
+# in order to run an ANOVA, I need two ore more differing variables. In this case I will create a new column and add it to my dataframe. This column will be populated with random numbers between 1-3 and will indicate season 1, 2, or 3 in this hypothetical scenario. 
+## add a column of random numbers between 1 and 3 to DF 
+
+set.seed(123)
+
+DataFrame$Season <- sample(1:3)
+
+print(DataFrame)
+
+#anova_result <- aov(DataFrame$DietItem ~ DataFrame$ReadCount, data=DataFrame
 
 
