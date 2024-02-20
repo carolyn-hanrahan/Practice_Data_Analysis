@@ -26,4 +26,40 @@ anova_result_2 <- aov(cbind(ReadCount_Fall, ReadCount_Summer1, ReadCount_Summer2
 
 summary(anova_result_2)
 
-## So this is not specifically for harbor seal.... ahhhhh.... 
+## So this is not specifically for harbor seal.... ^
+
+
+print(dataFrame)
+
+as.matrix(dataFrame)
+
+
+## Bar plot showing read count for american beaver for each of the three seasons: 
+
+barplot(as.matrix(dataFrame[1,2:4]))
+
+
+## Bar plot showing read count for harbor seal for each of the three seasons:)  
+y_axis <- c(0,50000)
+
+barplot(as.matrix(dataFrame[16,2:4]),
+        main = "Harbor Seal Read Count by Season",
+        col = "darkblue",
+        ylab = "DNA Read Count",
+        xlab = "Season",
+        ylim= y_axis)
+
+
+
+## More ANOVA practice..... 
+
+dataFrame_HS <- dataFrame[16,2:4]
+print(dataFrame_HS)
+
+
+
+anova_result3 <- aov(dataFrame_HS[,2:4])
+
+
+
+
