@@ -2,6 +2,12 @@
 ### Carolyn Hanrahan 
 ### February 8 2024 
 
+## this initial analysis looks at more of a beta diversity metric, examining total read counts per food group for the whole dataset.
+## One thing to consider moving forward is to look at diversity within individual samples 
+## Objectives: 
+## - Describe dietary diversity 
+## - Dsetermine how significant shorebirds are to overall coyote diet 
+
 ## Load in packages 
 library(vegan)
 library(ggplot2)
@@ -74,9 +80,14 @@ view(DataFrame)
 
 # note to self: okay I think I need to recreate this dataframe so that there is a column for each season rather than a "season" column...? 
 
-anova_result <- aov(ReadCount ~ ReadCount2, data=DataFrame)
+anova_result <- aov(ReadCount ~ ReadCount2 ~ ReadCount3, data=DataFrame)
 
 summary(anova_result) #A larger F-value suggests that the variance between groups is larger compared to the variance within groups, which could indicate a significant difference in means.
+
+
+## Attempting a t test... 
+
+t.test(ReadCount, ReadCount2) ** ## error ocurring because "ReadCount2" is not an object...
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
