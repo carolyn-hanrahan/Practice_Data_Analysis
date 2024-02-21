@@ -9,6 +9,7 @@ library(ggplot2)
 library(tidyr)
 library(tidyverse)
 library(dplyr)
+library(plotrix)
 
 
 
@@ -49,14 +50,24 @@ barplot(as.matrix(dataFrame[16,2:4]),
         xlab = "Season",
         ylim= y_axis)
 
+## Pie chart showing read count for harbor seal for each of the three seasons: 
+
+view(dataFrame_HS)
+
+categories <- c("fall", "summer", "summer 2")
+
+pie3D(as.matrix(dataFrame_HS), labels = categories, main = "Harbor Seal Read Count by Season")
+
 
 
 ## More ANOVA practice..... 
+## Need to calculate means for each category before being able to do ANOVA*
 
 dataFrame_HS <- dataFrame[16,2:4]
 print(dataFrame_HS)
 
 
+view(dataFrame)
 
 anova_result3 <- aov(dataFrame_HS[,2:4])
 
