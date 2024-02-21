@@ -6,7 +6,7 @@
 ## One thing to consider moving forward is to look at diversity within individual samples 
 ## Objectives: 
 ## - Describe dietary diversity 
-## - Dsetermine how significant shorebirds are to overall coyote diet 
+## - Determine how significant shorebirds are to overall coyote diet 
 
 ## Load in packages 
 library(vegan)
@@ -105,6 +105,44 @@ mds_result <- cmdscale(dissim_matrix)
 
 #plot
 plot(mds_result, type= "n", xlab= "Dimension 1", ylab= "Dimension 2")
+
+## Summary: in this R script, I import the Vancouver wolves dataset and create a dataframe that includes read count and diet type.
+## Note once again that we are looking at total read count per diet type across the whole study. 
+## To better replicate my study, I add in two new columns: "ReadCount2" and "ReadCount3" --> these are meant to simulate two additional seasons so I can compare. 
+## Following this, I created some basic charts/graphs to display read counts and did an ANOVA analysis between the three seasons. I also attempt a t test. 
+## I begin to create a MDS plot but the data does not really lend itself to it... *should circle back* 
+
+## Moving forward: 
+  ## create a bar graph showing read counts per season with all three seasons represented in different colors 
+  ## additional statistics 
+  ## examining individual samples 
+
+
+
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+# Example data
+categories <- c("Category A", "Category B", "Category C")
+values1 <- DataFrame$ReadCount
+values2 <- DataFrame$ReadCount2
+values3 <- DataFrame$ReadCount3
+
+# Combine the data into a matrix or data frame
+data_matrix <- matrix(c(values1, values2, values3), ncol = 3, byrow = TRUE)
+colnames(data_matrix) <- categories
+rownames(data_matrix) <- c("Group 1", "Group 2", "Group 3")
+
+# Create a bar graph
+barplot(data_matrix, beside = TRUE, col = rainbow(3)) main = "Bar Graph with Three Categories", xlab = "Groups", ylab = "Values", legend.text = categories)
+
+
+
+
 
 
 
