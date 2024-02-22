@@ -15,11 +15,54 @@ library(tidyr)
 library(tidyverse)
 library(dplyr)
 
-read_xlsx("Wolves_Filtered_100.xlsx")
+Wolves_filtered_100 <- read_xlsx("Wolves_Filtered_100.xlsx")
 
 data <- Wolves_Filtered_100
 view(data)
 
+data_clean <- data %>% select(c('Diet item','S22-4647':'S22-4641'))
+
+data_longer <- data_clean %>%
+  pivot_longer(cols = 'S22-4647':'S22-4641',
+               names_to = "Sample",
+               values_to = "ReadCount")
+
+
+data_longer <- mutate(data_longer, PA = ifelse(ReadCount > 0, "1", "0"))
+
+data_longer$PA <- as.numeric(data_longer$PA)
+data_longer <- data_longer[,-3]
+
+
+data_wider <- data_longer %>%
+  pivot_wider(names_from = "Diet item",
+              values_from = "PA")
+
+## add a new column for diversity 
+
+data_wider <- data_wider %>%
+  mutate(Diversity = rowSums(x = data_wider[2:ncol(data_wider)]))
+
+season <- c('1','2','3')
+sample(season, size = 1)
+data_wider$Season <- sample(season, size = 1)
+
+
+for( i in 1:nrow(data_wider)) {
+  data_wider[i, ncol(data_wider)] <- sample(season, size = 1)
+}
+  
+     
+
+
+
+
+
+
+
+ # pivot wider (help file)
+# names_from = Diet item 
+# values_from = PA (something like this) 
 
 
 ## Let's create a dataframe because that seems like a good idea. 
@@ -79,6 +122,7 @@ view(DataFrame)
 ## Calculating ANOVA! 
 
 # note to self: okay I think I need to recreate this dataframe so that there is a column for each season rather than a "season" column...? 
+
 
 anova_result <- aov(ReadCount ~ ReadCount2 ~ ReadCount3, data=DataFrame)
 
@@ -144,5 +188,13 @@ barplot(data_matrix, beside = TRUE, col = rainbow(3)) main = "Bar Graph with Thr
 
 
 
+
+
+## seasons on x-axis, diversity measure on the y-axis
+## Number of diet items per samples 
+## season information contained in one column (season 1, 2, 3) 
+## add a diversity row 
+## wide to long format in tidyverse 
+## if else
 
 
