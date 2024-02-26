@@ -91,7 +91,6 @@ ggplot(data_wider, aes(x = Season, y = Diversity)) +
   theme_minimal()
 
 
-      
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Calculate frequency of occurrence by summing columns: 
@@ -116,11 +115,24 @@ FOO_df <- FOO_df[112,]
 
 view(FOO_df)
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ plotting 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ new diversity metric 
+# Here I used the vegan package to calculate shannon's diversity index using the FOO dataframe. 
+
+library(vegan)
 
 
+diversity_result <- diversity(FOO_df, index="shannon")
+
+## we need the season data, so here I incorporate that: 
+
+diversity_result2 <- diversity(data_wider[,2:40, 42], index="shannon")
 
 
+print(diversity_result)
+print(diversity_result2)
+
+
+# struggling here... 
 
 
 
