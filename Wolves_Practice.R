@@ -7,8 +7,12 @@
 ## Objectives: 
 ## - Describe dietary diversity 
 ## - Determine how significant shorebirds are to overall coyote diet 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~code written with Reed~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# pivot wider (help file)
+# names_from = Diet item 
+# values_from = PA (something like this) 
 
-## Load in packages 
+# Load in packages 
 library(vegan)
 library(ggplot2)
 library(tidyr)
@@ -53,6 +57,66 @@ for( i in 1:nrow(data_wider)) {
 }
   
      
+#view(data_wider)
+
+
+## February 26th, 2024: 
+## goals: ANOVA (diversity by season)
+## create MDS plot
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ continuation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# ANOVA 
+
+results <- aov(Diversity ~ Season, data= data_wider)
+
+summary(results)
+
+#Interpreting the results: 
+#     The Df column displays the degrees of freedom for the independent variable (the number of levels in the variable minus 1), and the degrees of freedom for the residuals (the total number of observations minus one and minus the number of levels in the independent variables).
+#     The Sum Sq column displays the sum of squares (a.k.a. the total variation between the group means and the overall mean).
+#     The Mean Sq column is the mean of the sum of squares, calculated by dividing the sum of squares by the degrees of freedom for each parameter.
+#     The F value column is the test statistic from the F test. This is the mean square of each independent variable divided by the mean square of the residuals. The larger the F value, the more likely it is that the variation caused by the independent variable is real and not due to chance.
+#     The Pr(>F) column is the p value of the F statistic. This shows how likely it is that the F value calculated from the test would have occurred if the null hypothesis of no difference among group means were true.
+
+# In this case, the P-value is 0.078, which is greater than 0.05, meaning that there is no statistical significance between diversity and season in this case. 
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#Plot diversity by season 
+
+# Bar plot using ggplot2
+ggplot(data_wider, aes(x = Season, y = Diversity)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Diversity (species richness) by Season", x = "Season", y = "Diversity") +
+  theme_minimal()
+
+
+      
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Calculate frequency of occurrence by summing columns: 
+
+# first alter dataframe to get rid of unnecessary things
+
+
+FOO_df <- data_wider[, 2:40]
+view(FOO_df)
+  
+new_row <- colSums(FOO_df)
+
+FOO_df <- rbind(FOO_df, new_row)
+view(FOO_df)
+
+
+## this creates a new dataframe with the last row being FOO for each diet item. 
+
+# Now I will subset it further to only have FOO and each diet item: 
+
+FOO_df <- FOO_df[112,]
+
+view(FOO_df)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ plotting 
 
 
 
@@ -60,11 +124,19 @@ for( i in 1:nrow(data_wider)) {
 
 
 
- # pivot wider (help file)
-# names_from = Diet item 
-# values_from = PA (something like this) 
 
 
+
+
+
+
+
+
+
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ old code ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Let's create a dataframe because that seems like a good idea. 
 DietItem <- data$...1
 ReadCount <- data$...2
