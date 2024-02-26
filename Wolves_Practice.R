@@ -88,8 +88,11 @@ summary(results)
 ggplot(data_wider, aes(x = Season, y = Diversity)) +
   geom_bar(stat = "identity") +
   labs(title = "Diversity (species richness) by Season", x = "Season", y = "Diversity") +
-  theme_minimal()
+  theme_minimal() +
+  scale_fill_manual(values=c("skyblue", "magenta", "forestgreen"))
 
+# boxplot 
+boxplot(data_wider$Diversity ~ data_wider$Season, col=c("skyblue", "magenta", "forestgreen"))
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -134,12 +137,7 @@ print(diversity_result2)
 
 # struggling here... 
 
-
-
-
-
-
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ more  plotting
 
 
 
@@ -271,7 +269,7 @@ barplot(data_matrix, beside = TRUE, col = rainbow(3)) main = "Bar Graph with Thr
 
 
 
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 ## seasons on x-axis, diversity measure on the y-axis
