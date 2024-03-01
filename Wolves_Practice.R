@@ -235,14 +235,20 @@ nmds_data <- cbind(pivot_wider_2$Season, nmds_coordinates)
 colnames(nmds_data) <- c("Season", "NMDS1", "NMDS2")
 
 
+view(nmds_data)
 
+nmds_data <- data.frame(nmds_data)
 
+view(nmds_data)
 
 # Create NMDS plot using ggplot2
-ggplot(nmds_data, aes(x = NMDS1, y = NMDS2, label = Season)) +
+library(ggrepel)
+
+ggplot(nmds_data, aes(x = NMDS1, y = NMDS2, color= V1, label = V1)) +
   geom_point() +
-  geom_text_repel() +  # Add labels without overlap
-  labs(title = "NMDS Plot", x = "NMDS1", y = "NMDS2")
+  #geom_text_repel() +  # Add labels without overlap
+  labs(title = "NMDS Plot", x = "NMDS1", y = "NMDS2") 
+ 
 
 
 
