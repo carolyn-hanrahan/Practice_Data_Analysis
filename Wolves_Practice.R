@@ -243,17 +243,39 @@ view(nmds_data)
 
 # Create NMDS plot using ggplot2
 library(ggrepel)
+library(ggbiplot)
+library(ggplot2)
+library(ggalt)
+library(ggforce)
 
 ggplot(nmds_data, aes(x = NMDS1, y = NMDS2, color= V1, label = V1)) +
   geom_point() +
   #geom_text_repel() +  # Add labels without overlap
-  labs(title = "NMDS Plot", x = "NMDS1", y = "NMDS2") 
- 
+  labs(title = "NMDS Plot", x = "NMDS1", y = "NMDS2") + 
+  geom_encircle(aes(x = NMDS1, y = NMDS2, color = V1), data = nmds_data, 
+                alpha = 0.2, size = 2)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## Doing k-means clustering to find significant clusters: 
+
+# Perform k-means clustering
+kmeans_result <- kmeans(nmds_data[, c("NMDS1", "NMDS2")], centers = 2)  # Adjust the number of centers as needed
+
+# Add cluster assignments to the data frame
+nmds_data$Cluster <- as.factor(kmeans_result$cluster)
+
+# Create NMDS plot using ggplot2 with different colors for each group and circles around clusters
+ggplot(nmds_data, aes(x = NMDS1, y = NMDS2, color = Cluster)) +
+  geom_point() +
+  geom_text_repel() +  # Add labels without overlap
+  labs(title = "NMDS Plot") +
+  scale_color_manual(values = c("GroupA" = "skyblue", "GroupB" = "lightgreen")) +
+  geom_circle(aes(x0 = NMDS1, y0 = NMDS2, r = 0.1), data = nmds_data, 
+              inherit.aes = FALSE, fill = NA, color = "black", alpha = 0.5)
 
 
 
-
-
+view(nmds_data)
 
 
 
