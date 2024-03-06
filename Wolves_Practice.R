@@ -69,7 +69,6 @@ view(data_wider)
 # ANOVA 
 
 results <- aov(Diversity ~ Season, data= data_wider)
-
 summary(results)
 
 #Interpreting the results: 
@@ -82,6 +81,7 @@ summary(results)
 # In this case, the P-value is 0.078, which is greater than 0.05, meaning that there is no statistical significance between diversity and season in this case. 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~continuation 2/29/2024~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 #Plot diversity by season*
 
@@ -109,7 +109,6 @@ ggplot(average_diversity, aes(x = Season, y = avg_diversity, fill=Season)) +
 #   labs(title = "Diversity (species richness) by Season", x = "Season", y = "Diversity") +
 #   theme_minimal() +
 #   scale_fill_manual(values=c("skyblue", "magenta", "forestgreen"))
-
 
 
 
@@ -169,12 +168,13 @@ print(diversity_result2)
 ## visualizations for frequency of occurrence 
 
 
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a boxplot for ANOVA results
 boxplot_data <- data.frame(
   Group = data_wider$Diversity,
   Residuals = residuals(anova_result))
 
+view(data_wider)
 
 
 # Boxplot using ggplot2
@@ -216,7 +216,7 @@ for( i in 1:nrow(pivot_wider_2)) {
 
 
 
-##################################### PRACTICE NMDS PLOTS 
+##################################### PRACTICE NMDS PLOTS ################# 
 
 # Extract abundance data
 abundance_data <- pivot_wider_2[, 2:40]
@@ -265,25 +265,66 @@ kmeans_result <- kmeans(nmds_data[, c("NMDS1", "NMDS2")], centers = 2)  # Adjust
 nmds_data$Cluster <- as.factor(kmeans_result$cluster)
 
 # Create NMDS plot using ggplot2 with different colors for each group and circles around clusters
-ggplot(nmds_data, aes(x = NMDS1, y = NMDS2, color = Cluster)) +
-  geom_point() +
+ggplot(nmds_data, aes(x = NMDS1, y = NMDS2, color = V1)) +
+  geom_point() 
   geom_text_repel() +  # Add labels without overlap
   labs(title = "NMDS Plot") +
-  scale_color_manual(values = c("GroupA" = "skyblue", "GroupB" = "lightgreen")) +
+  geom_circle(aes(x0 = mean(NMDS1), y0 = mean(NMDS2), r = 0.1), 
+                data = nmds_data %>% filter(Cluster == 1), 
+                fill = NA, color = "black", alpha = 0.5) +
+    geom_circle(aes(x0 = mean(NMDS1), y0 = mean(NMDS2), r = 0.1), 
+                data = nmds_data %>% filter(Cluster == 2), 
+                fill = NA, color = "black", alpha = 0.5)
+
+  
+  
+  
+  
+  
   geom_circle(aes(x0 = NMDS1, y0 = NMDS2, r = 0.1), data = nmds_data, 
-              inherit.aes = FALSE, fill = NA, color = "black", alpha = 0.5)
+              inherit.aes = FALSE, fill = NA, color = "yellow", alpha = 0.5)
 
 
 
-view(nmds_data)
+  
+############################################# Practice ADONIS/PERMANOVA ###################
+  
 
+  # I am going to use the abundance dataframe created above for this analysis. This is called
+  # pivot_wider_2
+  
+  
+  library(vegan)
+  
+ 
+ # create dissimilarity matrix: 
+ diss_matrix <- vegdist(pivot_wider_2[,2:40], method = "euclidean")
+  
+  # Create a grouping variable
+  groups <- pivot_wider_2$Season 
+  
+  # Perform adonis test
+  adonis_result <- adonis2(dissimilarity_matrix ~ groups)
+  
+  # Display the results
+  summary(adonis_result)
 
+  # plot the results########################## 
+  
+  # Extract R-squared value
+  rsquared <- adonis_result$R2
+  
+  
+  library(ggforce)
+  library(vegan)
+  library(MASS)
+ 
+   # MDS plot 
+  mds_result <- isoMDS(diss_matrix)
+  plot(mds_result$points, col = groups, pch = 16, main = "MDS Plot")
 
-
-
-
-
-
+  # Add legend
+  legend("topright", legend = groups, col = unique(as.numeric(groups)), pch = 16, title = "Groups")
 
 
 
