@@ -304,7 +304,7 @@ ggplot(nmds_data, aes(x = NMDS1, y = NMDS2, color = V1)) +
   groups <- pivot_wider_2$Season 
   
   # Perform adonis test
-  adonis_result <- adonis2(dissimilarity_matrix ~ groups)
+  adonis_result <- adonis2(diss_matrix ~ groups)
   
   # Display the results
   summary(adonis_result)
