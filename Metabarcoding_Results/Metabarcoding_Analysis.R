@@ -48,6 +48,31 @@ clean_test_data <- test_data_wider
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ :) 
 
 
+#Subset FOO data 
+
+test_data_FOO <- test_data %>% select(c('Interpretation (Diet item)', 'FOO'))
+
+test_data_FOO <- test_data_FOO[1:27,]
+
+
+
+plot("Interpretation (Diet item", 'FOO', data=test_data_FOO)
+
+# Create a bar plot
+
+ggplot(test_data_FOO, aes(x = 'Interpretation (Diet item)')) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(title = "Frequency of Occurrence for Diet Items", x = "Diet Items", y = "Frequency") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+# Display the plot
+print(plot)
+
+
+
+
 
 
 
