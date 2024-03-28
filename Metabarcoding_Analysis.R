@@ -68,32 +68,62 @@ clean_data <- data_wider[, -c(29:30)]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-
 # turn data into presence/absence data to calculate "species richness" 
 
-Presence_absence <- as.data.frame(lapply(clean_test_data, function(x) ifelse(x > 0, 1, 0)))
+
+PA_data <- as.data.frame(clean_data)
+
+for(i in 2:28){
+  PA_data[,i] <- as.numeric(PA_data[,i])
+} 
+
+for(i in 2:28){
+  for (j in 1:nrow(PA_data)){
+    PA_data[j,i] <- ifelse(PA_data[j,i] >0, "1", "0")
+  }
+}
 
 
-PA_test_data <- mutate(clean_test_data, PA = ifelse("No Reads" > 0, "1", "0"))
+for(i in 2:28){
+  PA_data[,i] <- as.numeric(PA_data[,i])
+} 
+
+PA_data$SpeciesRichness <- rowSums(PA_data[,2:28])
+
+
+# List of how many samples come from each coyote individual 
+CoyoteCount <- PA_data %>% 
+  count(CoyoteID)
+
+
+
+# Trying to determine which coyotes have samples from both 2023 and 2022: 
+Test <- PA_data %>%
+  filter(CoyoteID == "CCNS22_F5")
+
+Test$PA <- rep(1, times=nrow(Test))
+
+View(pivot_wider(data=Test, names_from = Year, values_from = PA))
+
+CCNS22_F5
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ :) 
 
 
 # t-test to examine individual diet items between seasons. The below code examines the contribution of chicken to coyote diet 
 
-group_1 <- clean_test_data[1:56,2] # all of the data from 2022 
+group_1 <- clean_data[1:56,2] # all of the data from 2022 
 
-group_2 <- clean_test_data[57:139,2] # all of the data from 2023 
+group_2 <- clean_data[57:139,2] # all of the data from 2023 
 
 t.test(group_1, group_2)
 
 
 # t-test to examine the contribution of pilot whale to coyote diet by season 
 
-group_1 <- clean_test_data[1:56,21] # all of the data from 2022 
+group_1 <- clean_data[1:56,21] # all of the data from 2022 
 
-group_2 <- clean_test_data[57:139,21] # all of the data from 2023 
+group_2 <- clean_data[57:139,21] # all of the data from 2023 
 
 t.test(group_1, group_2)
 
@@ -126,61 +156,52 @@ t.test(group_1, group_2)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#Subset Overall FOO data and Visualize 
 
-
-library(xlsx)
-
-write.xlsx(clean_test_data, "clean_test_data")
-
-
-#Subset FOO data 
-
-test_data_FOO <- test_data %>% select(c('Interpretation (Diet item)', 'FOO'))
+test_data_FOO <- data %>% select(c('Interpretation (Diet item)', 'FOO'))
 
 test_data_FOO <- test_data_FOO[1:27,]
 
 
+# Rename the first column
+colnames(test_data_FOO)[1] <- "diet_item"
 
-plot("Interpretation (Diet item", 'FOO', data=test_data_FOO)
 
-# Create a bar plot
+# Load necessary libraries
+library(ggplot2)  # For data visualization
 
-ggplot(test_data_FOO, aes(x = 'Interpretation (Diet item)')) +
-  geom_bar(fill = "skyblue", color = "black") +
-  labs(title = "Frequency of Occurrence for Diet Items", x = "Diet Items", y = "Frequency") +
+#Create a barplot 
+ggplot(test_data_FOO, aes(x = diet_item, y = FOO)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Prevalence of Diet Items", x = "Diet Item", y = "FOO") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# Ordered bar plot 
+
+ggplot(test_data_FOO, aes(x = reorder(diet_item, -FOO), y = FOO)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Prevalence of Diet Items", x = "Diet Item", y = "FOO") +
+  theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
 
-# Display the plot
-print(plot)
+# Pie chart 
+ggplot(test_data_FOO, aes(x = diet_item, y = FOO, fill = FOO) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  labs(title = "Prevalence of Diet Items", fill = "Diet Item") +
+  theme_minimal())
+
 
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# ANOVA 
 
-# clean data 
-data_clean <- data %>% select(c('Interpretation (Diet item)','S23_0476':'S23_0636'))
 
-data_longer <- data_clean %>%
-  pivot_longer(cols = 'S23_0476':'S23_0636',
-               names_to = "Sample",
-               values_to = "ReadCount")
 
-view(data_longer)
-
-data_longer <- mutate(data_longer, PA = ifelse(ReadCount > 0, "1", "0"))
-data_longer$PA <- as.numeric(data_longer$PA)
-
-data_longer <- data_longer[,-3]
-
-data_wider <- data_longer %>%
-  pivot_wider(names_from = "Interpretation (Diet item)",
-              values_from = "PA")
-
-# add a new column for diversity 
-
-data_wider <- data_wider %>%
-  mutate(Diversity = rowSums(x = data_wider[2:ncol(data_wider)]))
 
