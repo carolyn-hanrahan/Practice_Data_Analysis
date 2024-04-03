@@ -15,6 +15,9 @@ library(ggalt)
 library(ggforce)
 library(ggforce)
 library(vegan)
+library(rJava)
+library(xlsx)
+library(openxlsx)
 #library(MASS)
 
 # Install and load the readxl package
@@ -23,7 +26,6 @@ library(readxl)
 
 # Read the Excel file/Import data into R: 
 data <- read_excel("test.xlsx")
-
 
 
 data_clean <- data %>% select(c('Interpretation (Diet item)', 'S23_0476':'S23_2874'))
@@ -62,8 +64,84 @@ data_wider$CoyoteID <- data_wider$NA_2
 # Remove two columns in the middle
 clean_data <- data_wider[, -c(29:30)]
 
+clean_data_2022 <- clean_data[1:56,]
+
+clean_data_2023 <- clean_data[57:139,]
+
+PA_2022 <- PA_data[1:56,]
+
+PA_2023 <- PA_data[57:139,]
 
 # Now we have a clean_data file with all the necessary information! 
+#__________________________________________________________________________________
+# Calculate FOO for diet type for each season*****************************
+
+# 2022 data: 
+total <- data.frame(colSums(PA_2022[,2:28]))
+
+divisor <- 56
+
+total_FOO_2022 <- total/divisor
+
+# Rename columns
+colnames(total_FOO_2022) <-  "Fall_FOO"
+
+total_FOO_2022$diet_item <- row.names(total_FOO_2022)
+
+# total_FOO_2022 now provides FOO values for 2022 data 
+
+# Ordered bar plot 
+
+ggplot(total_FOO_2022, aes(x = reorder(diet_item, -FOO), y = FOO)) +
+  geom_bar(stat = "identity", fill = "lightpink") +
+  labs(title = "Prevalence of Diet Items (Fall)", x = "Diet Item", y = "FOO") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+#2023
+total <- data.frame(colSums(PA_2023[,2:28]))
+
+divisor <- 83
+
+total_FOO_2023 <- total/divisor
+
+# Rename columns
+colnames(total_FOO_2023) <-  "Summer_FOO"
+
+total_FOO_2023$diet_item <- row.names(total_FOO_2023)
+
+ggplot(total_FOO_2023, aes(x = reorder(diet_item, -FOO), y = FOO)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Prevalence of Diet Items (Summer)", x = "Diet Item", y = "FOO") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+# Create the double bar plot
+
+all_data <- cbind(total_FOO_2022, total_FOO_2023)
+
+all_data <- all_data[,1:3]
+
+# Load the ggplot2 package
+library(ggplot2)
+
+# Convert the dataframe to long format
+library(tidyr)
+
+all_long <- pivot_longer(all_data, cols = c("Fall_FOO", "Summer_FOO"), names_to = "Season", values_to = "FOO")
+
+# Create the bar plot
+ggplot(all_long, aes(x = diet_item, y = FOO, fill = Season)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Fall and Summer FOO of Diet Items",
+       x = "Diet Item",
+       y = "FOO",
+       fill = "Season") +
+       theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Rotate x-axis labels vertically
+
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -107,6 +185,65 @@ View(pivot_wider(data=Test, names_from = Year, values_from = PA))
 
 CCNS22_F5
 
+
+
+hmmm <- CoyoteCount[CoyoteCount$n > 1, ]
+
+
+# Trying to see what the most common diet items were for this individual: 
+
+diet_item_freq <- colSums(Test[, 2:28])
+
+# Create a bar plot
+barplot(diet_item_freq, 
+        main = "Frequency of Diet Items for CCNS22_F5",
+        xlab = "Diet Items",
+        ylab = "Frequency",
+        col = "skyblue",
+        names.arg = names(diet_item_freq),
+        las = 2)
+
+
+
+# Define colors based on the year
+year_colors <- c("2022" = "skyblue", "2023" = "lightpink")  # Add more colors for additional years
+
+# Create a bar plot with colors based on the year
+barplot(diet_item_freq, 
+        main = "Frequency of Diet Items by Year",
+        xlab = "Diet Items",
+        ylab = "Frequency",
+        col = year_colors[Test$Year],  # Use year_colors for colors
+        names.arg = names(diet_item_freq),
+        las = 2,
+        legend.text = TRUE)
+
+
+# Calculate the frequency of each diet item for each year
+
+Year_2022 <- colSums(Test[Test$Year == 2022, 2:28])
+Year_2023 <- colSums(Test[Test$Year == 2023, 2:28])
+
+# Define colors for each year
+year_colors <- c("2022" = "skyblue", "2023" = "lightpink")  # Add more colors for additional years
+
+# Combine the frequencies into a matrix
+height_matrix <- rbind(Year_2022, Year_2023)
+
+# Create the bar plot
+barplot(height_matrix,
+        beside = TRUE,
+        main = "Frequency of Diet Items by Year for CCNS22_F5",
+        xlab = "Diet Items",
+        ylab = "Frequency",
+        col = c(year_colors["2022"], year_colors["2023"]),  # Use colors for each year
+        legend.text = TRUE,
+        args.legend = list(x = "topright"))  # Position the legend
+
+
+
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ :) 
 
 
@@ -142,17 +279,32 @@ t.test(group_1, group_2)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Examining Species Richness/Presence-Absence Data: 
+# Examining Species Richness/Presence-Absence Data By Year: 
+
+## Calculating Average Diversity by Year: 
+
+average_diversity <- PA_data %>%
+  group_by(Year) %>%
+  summarise(avg_diversity = mean(SpeciesRichness))
 
 
+## Plotting [good graph]: 
 
+ggplot(average_diversity, aes(x = Year, y = avg_diversity, fill=Year)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Average Diversity (species richness) by Season", x = "Year", y = "Average Species Richness per Sample") +
+  scale_fill_manual(values = c("skyblue", "lightgreen"))
 
+#Fall data
+Fall_data <- PA_data[1:56,]
 
+mean_sr_fall <- mean(Fall_data$SpeciesRichness)
+#2.679
 
-
-
-
-
+#Spring data 
+Summer_data <- PA_data[57:139,]
+mean_sr_summer <- mean(Summer_data$SpeciesRichness)
+#3.651
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -196,12 +348,41 @@ ggplot(test_data_FOO, aes(x = diet_item, y = FOO, fill = FOO) +
   theme_minimal())
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ plotting diversity by season
+
+#Fall data
+Fall_data <- PA_data[1:56,]
+
+
+mean_sr_fall <- mean(Fall_data$SpeciesRichness)
+
+#2.679
+
+#Spring data 
+Summer_data <- PA_data[57:139,]
+
+mean_sr_summer <- mean(Summer_data$SpeciesRichness)
+
+#3.65
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# ANOVA --> Analysis of Variance between Species Richness and Year 
+
+results <- aov(SpeciesRichness ~ Year, data= PA_data)
+
+summary(results)
+
+Residuals = residuals(results)
+
+# p-value = 0.00466, therefore a statistically significant result 
+
+# Plotting the residuals from the ANOVA: 
+
+ggplot(results, aes(x = Year, y = SpeciesRichness)) +
+  geom_boxplot(fill = c("skyblue", "orange"), color = "black") +
+  labs(title = "Dietary Richness by Year", x = "Year", y = "Species Richness")
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# ANOVA 
-
-
-
 
