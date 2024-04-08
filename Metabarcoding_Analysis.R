@@ -142,7 +142,22 @@ ggplot(all_long, aes(x = diet_item, y = FOO, fill = Season)) +
        fill = "Season") +
        theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Rotate x-axis labels vertically
 
+# Changing the x-axis to order diet items 
+order <- c('white-tailed deer', 'chicken','eastern cottontail', 'New England cottontail', 'turkey')
 
+
+ggplot(all_long, aes(x = factor(diet_item, level=order), y = FOO, fill = Season)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Fall and Summer FOO of Diet Items",
+       x = "Diet Item",
+       y = "FOO",
+       fill = "Season") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Rotate x-axis labels vertically
+
+
+# EXAMPLE CODE: create bar plot with specific axis order
+ggplot(df, aes(x=factor(team, level=c('Mavs', 'Heat', 'Nets', 'Lakers')), y=points)) +
+  geom_col()
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -290,10 +305,17 @@ average_diversity <- PA_data %>%
 
 ## Plotting [good graph]: 
 
-ggplot(average_diversity, aes(x = Year, y = avg_diversity, fill=Year)) +
+average_diversity_plot <- ggplot(average_diversity, aes(x = Year, y = avg_diversity, fill=Year)) +
   geom_bar(stat = "identity") +
   labs(title = "Average Diversity (species richness) by Season", x = "Year", y = "Average Species Richness per Sample") +
   scale_fill_manual(values = c("skyblue", "lightgreen"))
+
+# Add error bars
+average_diversity_plot <- average_diversity_plot + geom_errorbar(aes(ymin = values - errors, ymax = values + errors), 
+                       width = 0.4,                   # Width of the error bars
+                       color = "red",                # Color of the error bars
+                       position = position_dodge(0.9))  # Dodge the error bars to align with the bars
+
 
 #Fall data
 Fall_data <- PA_data[1:56,]
@@ -385,4 +407,44 @@ ggplot(results, aes(x = Year, y = SpeciesRichness)) +
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Jaccard Dissimilarity Index 
+
+library(vegan)
+
+# Calculate Jaccard dissimilarity index
+jaccard_index <- vegdist(rbind(PA_2022[,2], PA_2023[,2]), method = "jaccard")
+
+# Print the Jaccard dissimilarity index
+print(jaccard_index)
+
+# The above index calculates how similar chicken is in coyote diet for 2022 and 2023 
+
+#Grey or harbor seal: 
+jaccard_index <- vegdist(rbind(PA_2022[,25], PA_2023[,25]), method = "jaccard")
+
+print(jaccard_index)
+
+# The above index examines grey/harbor seal and calculates a jaccard index of 0.93, indicating 
+# high overlap between seasons 
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Levin's Measure of Niche Breadth.......
+
+
+# Calculate Levin's measure of niche breadth
+levins_niche_breadth <- function(data) {
+  proportions <- colSums(data) / nrow(data)
+  niche_breadth <- 1 / sum(proportions^2)
+  return(niche_breadth)
+}
+
+# Apply the function to the presence/absence matrix
+niche_breadth <- levins_niche_breadth(presence_absence_matrix)
+
+# Print the result
+print(niche_breadth)
+
+
 
