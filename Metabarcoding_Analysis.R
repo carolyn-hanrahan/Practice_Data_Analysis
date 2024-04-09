@@ -212,9 +212,9 @@ diet_item_freq <- colSums(Test[, 2:28])
 # Create a bar plot
 barplot(diet_item_freq, 
         main = "Frequency of Diet Items for CCNS22_F5",
-        xlab = "Diet Items",
+        xlab = " ",
         ylab = "Frequency",
-        col = "skyblue",
+        col = "darkgreen",
         names.arg = names(diet_item_freq),
         las = 2)
 
@@ -228,7 +228,7 @@ barplot(diet_item_freq,
         main = "Frequency of Diet Items by Year",
         xlab = "Diet Items",
         ylab = "Frequency",
-        col = year_colors[Test$Year],  # Use year_colors for colors
+        col = year_colors,  # Use year_colors for colors
         names.arg = names(diet_item_freq),
         las = 2,
         legend.text = TRUE)
@@ -347,7 +347,7 @@ library(ggplot2)  # For data visualization
 #Create a barplot 
 ggplot(test_data_FOO, aes(x = diet_item, y = FOO)) +
   geom_bar(stat = "identity", fill = "skyblue") +
-  labs(title = "Prevalence of Diet Items", x = "Diet Item", y = "FOO") +
+  labs(title = "Prevalence of Diet Items Across all Seasons", x = "Diet Item", y = "FOO") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
@@ -355,8 +355,8 @@ ggplot(test_data_FOO, aes(x = diet_item, y = FOO)) +
 # Ordered bar plot 
 
 ggplot(test_data_FOO, aes(x = reorder(diet_item, -FOO), y = FOO)) +
-  geom_bar(stat = "identity", fill = "skyblue") +
-  labs(title = "Prevalence of Diet Items", x = "Diet Item", y = "FOO") +
+  geom_bar(stat = "identity", fill = "turquoise") +
+  labs(title = "Prevalence of Diet Items Across all Seasons", x = "Diet Item", y = "FOO") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
