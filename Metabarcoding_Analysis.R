@@ -428,23 +428,71 @@ print(jaccard_index)
 # The above index examines grey/harbor seal and calculates a jaccard index of 0.93, indicating 
 # high overlap between seasons 
 
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Comparing a sample from an individual coyote from fall and summer. Coyote "CCNS22_F5"
+
+jaccard_index <- vegdist(rbind(PA_2022[7,2:28], PA_2023[68,2:28]), method = "jaccard")
+
+print(jaccard_index)
+
+u <- PA_2022[7,2:28]
+z <- PA_2023[68,2:28]
+
+# Transpose the dataframe
+transposed_u <- t(u)
+transposed_z <- t(z)
+
+jaccard_index <- vegdist(rbind(transposed_u[,1], transposed_z[,1]), method = "jaccard")
+
+print(jaccard_index)
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
+
+# Petraitis' W': 
+# Petraitis' W' is a measure used in ecology to quantify the variability or heterogeneity in the distribution 
+# of a particular trait within a community or population.
+# Note that the below proportions are based on proportion of samples, not proportion of indivudals
+
+# Petraitis' W for 2022: 
+
+prop_2022 <- total_FOO_2022[,1]
+
+# Calculate Petraitis' W'
+petraitis_W <- 1 - sum(prop_2022^2)
+
+# Print the result
+print(petraitis_W)
+
+# Petraitis' W' for the 2022 dataset: 0.301, indicating moderate variability. 
+
+# Petraitis' W for 2023: 
+
+prop_2023 <- total_FOO_2023[,1]
+
+# Calculate Petraitis' W'
+petraitis_W <- 1 - sum(prop_2023^2)
+
+print(petraitis_W)
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Levin's Measure of Niche Breadth.......
+# Levin's niche breadth ranges from 1 to n, where 1 indicates that a species utilizes only one resource/environmental condition 
 
-
-# Calculate Levin's measure of niche breadth
-levins_niche_breadth <- function(data) {
-  proportions <- colSums(data) / nrow(data)
-  niche_breadth <- 1 / sum(proportions^2)
-  return(niche_breadth)
-}
-
-# Apply the function to the presence/absence matrix
-niche_breadth <- levins_niche_breadth(presence_absence_matrix)
+# Calculate Levin's index 2022
+levins_index <- 1 / sum(prop_2022^2)
 
 # Print the result
-print(niche_breadth)
+print(levins_index)
+# Result: 1.43 indicates relatively broad resource usage 
 
+# Calculate Levin's index 2023
+levins_index <- 1 / sum(prop_2023^2)
 
+# Print the result
+print(levins_index)
 
