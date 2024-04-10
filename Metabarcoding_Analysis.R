@@ -15,9 +15,6 @@ library(ggalt)
 library(ggforce)
 library(ggforce)
 library(vegan)
-library(rJava)
-library(xlsx)
-library(openxlsx)
 #library(MASS)
 
 # Install and load the readxl package
@@ -64,100 +61,9 @@ data_wider$CoyoteID <- data_wider$NA_2
 # Remove two columns in the middle
 clean_data <- data_wider[, -c(29:30)]
 
-clean_data_2022 <- clean_data[1:56,]
-
-clean_data_2023 <- clean_data[57:139,]
-
-PA_2022 <- PA_data[1:56,]
-
-PA_2023 <- PA_data[57:139,]
 
 # Now we have a clean_data file with all the necessary information! 
-#__________________________________________________________________________________
-# Calculate FOO for diet type for each season*****************************
 
-# 2022 data: 
-total <- data.frame(colSums(PA_2022[,2:28]))
-
-divisor <- 56
-
-total_FOO_2022 <- total/divisor
-
-# Rename columns
-colnames(total_FOO_2022) <-  "Fall_FOO"
-
-total_FOO_2022$diet_item <- row.names(total_FOO_2022)
-
-# total_FOO_2022 now provides FOO values for 2022 data 
-
-# Ordered bar plot 
-
-ggplot(total_FOO_2022, aes(x = reorder(diet_item, -FOO), y = FOO)) +
-  geom_bar(stat = "identity", fill = "lightpink") +
-  labs(title = "Prevalence of Diet Items (Fall)", x = "Diet Item", y = "FOO") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-#2023
-total <- data.frame(colSums(PA_2023[,2:28]))
-
-divisor <- 83
-
-total_FOO_2023 <- total/divisor
-
-# Rename columns
-colnames(total_FOO_2023) <-  "Summer_FOO"
-
-total_FOO_2023$diet_item <- row.names(total_FOO_2023)
-
-ggplot(total_FOO_2023, aes(x = reorder(diet_item, -FOO), y = FOO)) +
-  geom_bar(stat = "identity", fill = "skyblue") +
-  labs(title = "Prevalence of Diet Items (Summer)", x = "Diet Item", y = "FOO") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-
-# Create the double bar plot
-
-all_data <- cbind(total_FOO_2022, total_FOO_2023)
-
-all_data <- all_data[,1:3]
-
-# Load the ggplot2 package
-library(ggplot2)
-
-# Convert the dataframe to long format
-library(tidyr)
-
-all_long <- pivot_longer(all_data, cols = c("Fall_FOO", "Summer_FOO"), names_to = "Season", values_to = "FOO")
-
-# Create the bar plot
-ggplot(all_long, aes(x = diet_item, y = FOO, fill = Season)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Fall and Summer FOO of Diet Items",
-       x = "Diet Item",
-       y = "FOO",
-       fill = "Season") +
-       theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Rotate x-axis labels vertically
-
-# Changing the x-axis to order diet items 
-order <- c('white-tailed deer', 'chicken','eastern cottontail', 'New England cottontail', 'turkey')
-
-
-ggplot(all_long, aes(x = factor(diet_item, level=order), y = FOO, fill = Season)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Fall and Summer FOO of Diet Items",
-       x = "Diet Item",
-       y = "FOO",
-       fill = "Season") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Rotate x-axis labels vertically
-
-
-# EXAMPLE CODE: create bar plot with specific axis order
-ggplot(df, aes(x=factor(team, level=c('Mavs', 'Heat', 'Nets', 'Lakers')), y=points)) +
-  geom_col()
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -203,62 +109,6 @@ CCNS22_F5
 
 
 hmmm <- CoyoteCount[CoyoteCount$n > 1, ]
-
-
-# Trying to see what the most common diet items were for this individual: 
-
-diet_item_freq <- colSums(Test[, 2:28])
-
-# Create a bar plot
-barplot(diet_item_freq, 
-        main = "Frequency of Diet Items for CCNS22_F5",
-        xlab = " ",
-        ylab = "Frequency",
-        col = "darkgreen",
-        names.arg = names(diet_item_freq),
-        las = 2)
-
-
-
-# Define colors based on the year
-year_colors <- c("2022" = "skyblue", "2023" = "lightpink")  # Add more colors for additional years
-
-# Create a bar plot with colors based on the year
-barplot(diet_item_freq, 
-        main = "Frequency of Diet Items by Year",
-        xlab = "Diet Items",
-        ylab = "Frequency",
-        col = year_colors,  # Use year_colors for colors
-        names.arg = names(diet_item_freq),
-        las = 2,
-        legend.text = TRUE)
-
-
-# Calculate the frequency of each diet item for each year
-
-Year_2022 <- colSums(Test[Test$Year == 2022, 2:28])
-Year_2023 <- colSums(Test[Test$Year == 2023, 2:28])
-
-# Define colors for each year
-year_colors <- c("2022" = "skyblue", "2023" = "lightpink")  # Add more colors for additional years
-
-# Combine the frequencies into a matrix
-height_matrix <- rbind(Year_2022, Year_2023)
-
-# Create the bar plot
-barplot(height_matrix,
-        beside = TRUE,
-        main = "Frequency of Diet Items by Year for CCNS22_F5",
-        xlab = "Diet Items",
-        ylab = "Frequency",
-        col = c(year_colors["2022"], year_colors["2023"]),  # Use colors for each year
-        legend.text = TRUE,
-        args.legend = list(x = "topright"))  # Position the legend
-
-
-
-
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ :) 
 
 
@@ -305,28 +155,12 @@ average_diversity <- PA_data %>%
 
 ## Plotting [good graph]: 
 
-average_diversity_plot <- ggplot(average_diversity, aes(x = Year, y = avg_diversity, fill=Year)) +
+ggplot(average_diversity, aes(x = Year, y = avg_diversity, fill=Year)) +
   geom_bar(stat = "identity") +
   labs(title = "Average Diversity (species richness) by Season", x = "Year", y = "Average Species Richness per Sample") +
   scale_fill_manual(values = c("skyblue", "lightgreen"))
 
-# Add error bars
-average_diversity_plot <- average_diversity_plot + geom_errorbar(aes(ymin = values - errors, ymax = values + errors), 
-                       width = 0.4,                   # Width of the error bars
-                       color = "red",                # Color of the error bars
-                       position = position_dodge(0.9))  # Dodge the error bars to align with the bars
 
-
-#Fall data
-Fall_data <- PA_data[1:56,]
-
-mean_sr_fall <- mean(Fall_data$SpeciesRichness)
-#2.679
-
-#Spring data 
-Summer_data <- PA_data[57:139,]
-mean_sr_summer <- mean(Summer_data$SpeciesRichness)
-#3.651
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -347,7 +181,7 @@ library(ggplot2)  # For data visualization
 #Create a barplot 
 ggplot(test_data_FOO, aes(x = diet_item, y = FOO)) +
   geom_bar(stat = "identity", fill = "skyblue") +
-  labs(title = "Prevalence of Diet Items Across all Seasons", x = "Diet Item", y = "FOO") +
+  labs(title = "Prevalence of Diet Items", x = "Diet Item", y = "FOO") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
@@ -355,8 +189,8 @@ ggplot(test_data_FOO, aes(x = diet_item, y = FOO)) +
 # Ordered bar plot 
 
 ggplot(test_data_FOO, aes(x = reorder(diet_item, -FOO), y = FOO)) +
-  geom_bar(stat = "identity", fill = "turquoise") +
-  labs(title = "Prevalence of Diet Items Across all Seasons", x = "Diet Item", y = "FOO") +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Prevalence of Diet Items", x = "Diet Item", y = "FOO") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
@@ -370,24 +204,23 @@ ggplot(test_data_FOO, aes(x = diet_item, y = FOO, fill = FOO) +
   theme_minimal())
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ plotting diversity by season
+# Plotting FOO data by Year: 
 
-#Fall data
-Fall_data <- PA_data[1:56,]
+Fall_data <- clean_data[1:56,]
+
+Summer_data <- clean_data[57:139,]
 
 
-mean_sr_fall <- mean(Fall_data$SpeciesRichness)
 
-#2.679
 
-#Spring data 
-Summer_data <- PA_data[57:139,]
+# Ordered bar plot 
 
-mean_sr_summer <- mean(Summer_data$SpeciesRichness)
-
-#3.65
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ggplot(Fall_data, aes(x = reorder(diet_item, -FOO), y = FOO)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Prevalence of Diet Items", x = "Diet Item", y = "FOO") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # ANOVA --> Analysis of Variance between Species Richness and Year 
 
@@ -401,98 +234,10 @@ Residuals = residuals(results)
 
 # Plotting the residuals from the ANOVA: 
 
-ggplot(results, aes(x = Year, y = SpeciesRichness)) +
+ggplot(results, aes(x = Year, y = Residuals)) +
   geom_boxplot(fill = c("skyblue", "orange"), color = "black") +
-  labs(title = "Dietary Richness by Year", x = "Year", y = "Species Richness")
+  labs(title = "ANOVA Residuals", x = "Year", y = "Residuals")
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# Jaccard Dissimilarity Index 
-
-library(vegan)
-
-# Calculate Jaccard dissimilarity index
-jaccard_index <- vegdist(rbind(PA_2022[,2], PA_2023[,2]), method = "jaccard")
-
-# Print the Jaccard dissimilarity index
-print(jaccard_index)
-
-# The above index calculates how similar chicken is in coyote diet for 2022 and 2023 
-
-#Grey or harbor seal: 
-jaccard_index <- vegdist(rbind(PA_2022[,25], PA_2023[,25]), method = "jaccard")
-
-print(jaccard_index)
-
-# The above index examines grey/harbor seal and calculates a jaccard index of 0.93, indicating 
-# high overlap between seasons 
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Comparing a sample from an individual coyote from fall and summer. Coyote "CCNS22_F5"
-
-jaccard_index <- vegdist(rbind(PA_2022[7,2:28], PA_2023[68,2:28]), method = "jaccard")
-
-print(jaccard_index)
-
-u <- PA_2022[7,2:28]
-z <- PA_2023[68,2:28]
-
-# Transpose the dataframe
-transposed_u <- t(u)
-transposed_z <- t(z)
-
-jaccard_index <- vegdist(rbind(transposed_u[,1], transposed_z[,1]), method = "jaccard")
-
-print(jaccard_index)
-
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
-
-# Petraitis' W': 
-# Petraitis' W' is a measure used in ecology to quantify the variability or heterogeneity in the distribution 
-# of a particular trait within a community or population.
-# Note that the below proportions are based on proportion of samples, not proportion of indivudals
-
-# Petraitis' W for 2022: 
-
-prop_2022 <- total_FOO_2022[,1]
-
-# Calculate Petraitis' W'
-petraitis_W <- 1 - sum(prop_2022^2)
-
-# Print the result
-print(petraitis_W)
-
-# Petraitis' W' for the 2022 dataset: 0.301, indicating moderate variability. 
-
-# Petraitis' W for 2023: 
-
-prop_2023 <- total_FOO_2023[,1]
-
-# Calculate Petraitis' W'
-petraitis_W <- 1 - sum(prop_2023^2)
-
-print(petraitis_W)
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# Levin's Measure of Niche Breadth.......
-# Levin's niche breadth ranges from 1 to n, where 1 indicates that a species utilizes only one resource/environmental condition 
-
-# Calculate Levin's index 2022
-levins_index <- 1 / sum(prop_2022^2)
-
-# Print the result
-print(levins_index)
-# Result: 1.43 indicates relatively broad resource usage 
-
-# Calculate Levin's index 2023
-levins_index <- 1 / sum(prop_2023^2)
-
-# Print the result
-print(levins_index)
 
