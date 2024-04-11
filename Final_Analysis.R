@@ -429,6 +429,7 @@ print(jaccard_index)
 # high overlap between seasons 
 
 
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Comparing a sample from an individual coyote from fall and summer. Coyote "CCNS22_F5"
 
@@ -447,7 +448,22 @@ jaccard_index <- vegdist(rbind(transposed_u[,1], transposed_z[,1]), method = "ja
 
 print(jaccard_index)
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ other approach to Jaccard index: 
+# Find the minimum length between the two datasets
+min_length <- min(length(PA_2022), length(PA_2023))
 
+# Convert data frames to matrices
+mat_PA_2022 <- as.matrix(PA_2022[,2:28])
+mat_PA_2023 <- as.matrix(PA_2023[,2:28])
+
+# Calculate the intersection (common elements)
+intersection <- sum(mat_PA_2022[1:min_length] & mat_PA_2023[1:min_length])
+
+# Calculate the union (total unique elements)
+union <- sum(mat_PA_2022[1:min_length] | mat_PA_2023[1:min_length])
+
+# Calculate the Jaccard similarity index
+jaccard_index <- intersection / union
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
@@ -495,3 +511,45 @@ levins_index <- 1 / sum(prop_2023^2)
 
 # Print the result
 print(levins_index)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Shannon's Diversity Index 
+
+library(vegan)
+
+# Calculate Shannon's diversity index for all of the 2022 samples: 
+shannon_indices_2022 <- diversity(PA_2022[,2:28], index = "shannon")
+
+# Print Shannon's diversity indices for each sample from 2022 dataset: 
+print(shannon_indices_2022)
+
+# Mean shannon's diversity index for all the samples from 2022: 
+overall_shannon_2022 <- mean(shannon_indices_2022)
+
+print(overall_shannon_2022)
+# value = 0.848, indicating moderate diversity. "there is a reasonable variation
+# in the occurrence of different diet items across the samples, but it's not extremely high"
+
+# Calculate Shannon's diversity index for all of the 2023 samples: 
+shannon_indices_2023 <- diversity(PA_2023[,2:28], index = "shannon")
+
+# Print Shannon's diversity indices for each sample from 2022 dataset: 
+print(shannon_indices_2023)
+
+# Mean shannon's diversity index for all the samples from 2022: 
+overall_shannon_2023 <- mean(shannon_indices_2023)
+
+print(overall_shannon_2023)
+# value = 1.14. There is reasonable/moderate variation/diversity on average. The diversity is higher than that of the 2022 data. 
+
+# Test for statistical significance:
+
+# T-test on the Shannon's diversity indices calculated in the above steps: 
+t_test_result <- t.test(shannon_indices_2022, shannon_indices_2023)
+
+# Print the results
+print(t_test_result)
+
+# p-value from this t-test is 0.0068, indicating a statistically significant difference in diversity between seasons. 
+
+
+
