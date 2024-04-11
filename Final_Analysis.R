@@ -514,6 +514,8 @@ print(levins_index)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Shannon's Diversity Index 
 
+# The below code is adapted from the methods from: https://www.researchgate.net/publication/363745467_DNA_metabarcoding_reveals_that_coyotes_in_New_York_City_consume_wide_variety_of_native_prey_species_and_human_food 
+
 library(vegan)
 
 # Calculate Shannon's diversity index for all of the 2022 samples: 
@@ -550,6 +552,22 @@ t_test_result <- t.test(shannon_indices_2022, shannon_indices_2023)
 print(t_test_result)
 
 # p-value from this t-test is 0.0068, indicating a statistically significant difference in diversity between seasons. 
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Pianka's Niche Overlap
+
+library(stoichcalc).  #***** 
+library(ecosim)
+
+# Calculate Pianka's niche overlap
+overlap <- niche.overlap(mat_PA_2022, mat_PA_2023, method = "Pianka")
+
+# Print the overlap matrix
+print(overlap)
+
+
+
+
+
 
 
 
