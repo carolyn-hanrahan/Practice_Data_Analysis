@@ -553,21 +553,49 @@ print(t_test_result)
 
 # p-value from this t-test is 0.0068, indicating a statistically significant difference in diversity between seasons. 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Pianka's Niche Overlap
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PCA Plots
 
-library(stoichcalc).  #***** 
-library(ecosim)
+library(multcompView)
+library(flashClust)
+library(FactoMineR)
+library(factoextra)
 
-# Calculate Pianka's niche overlap
-overlap <- niche.overlap(mat_PA_2022, mat_PA_2023, method = "Pianka")
+# Perform PCA 2022
+pca_result <- PCA(mat_PA_2022, graph = FALSE)
 
-# Print the overlap matrix
-print(overlap)
-
-
-
-
+# Plot results
+plot.PCA(pca_result)
 
 
+# Perform PCA 2023 
+pca_result <- PCA(mat_PA_2023, graph = FALSE)
 
+# Plot results
+plot.PCA(pca_result)
+
+# Clustering of diet items for each season. 
+
+# Now I am making a combined PCA plot showing data from both seasons: 
+
+# Combine the data from both seasons
+combined_data <- rbind(mat_PA_2022, mat_PA_2023)  # Assuming data_season1 and data_season2 are your datasets for each season
+
+# Perform PCA on the combined data
+pca_result_combined <- PCA(combined_data)
+
+
+PCA_data_2022 <- PA_2022[,2:29]
+PCA_data_2023 <- PA_2023[,2:29]
+
+
+# Combine the data from both seasons
+combined_data <- rbind(PCA_data_2022, PCA_data_2023)
+
+# Perform PCA on the combined data
+pca_result_combined <- PCA(combined_data, graph = FALSE)
+
+# Plot results with color-coded points by season
+plot.PCA(pca_result_combined, 
+         col.ind = combined_data$Season,
+         title = "PCA Plot of Combined Data (Color-coded by Season)")
 
