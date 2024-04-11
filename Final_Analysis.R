@@ -79,12 +79,12 @@ PA_2023 <- PA_data[57:139,]
 # 2022 data: 
 total <- data.frame(colSums(PA_2022[,2:28]))
 
-divisor <- 56
+divisor <- 57
 
 total_FOO_2022 <- total/divisor
 
 # Rename columns
-colnames(total_FOO_2022) <-  "Fall_FOO"
+colnames(total_FOO_2022) <-  "FOO"
 
 total_FOO_2022$diet_item <- row.names(total_FOO_2022)
 
@@ -107,7 +107,7 @@ divisor <- 83
 total_FOO_2023 <- total/divisor
 
 # Rename columns
-colnames(total_FOO_2023) <-  "Summer_FOO"
+colnames(total_FOO_2023) <-  "FOO"
 
 total_FOO_2023$diet_item <- row.names(total_FOO_2023)
 
