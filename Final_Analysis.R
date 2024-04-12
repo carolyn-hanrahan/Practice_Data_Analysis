@@ -94,9 +94,13 @@ total_FOO_2022$diet_item <- row.names(total_FOO_2022)
 
 ggplot(total_FOO_2022, aes(x = reorder(diet_item, -FOO), y = FOO)) +
   geom_bar(stat = "identity", fill = "lightpink") +
-  labs(title = "Prevalence of Diet Items (Fall)", x = "Diet Item", y = "FOO") +
+  labs(title = "Prevalence of Diet Items (Fall)", x = "Diet Item", y = "FOO") +  # Add plot title
+  coord_cartesian(ylim = c(0, 0.7))  # Set y-axis limits
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
 
 
 #2023
@@ -113,7 +117,8 @@ total_FOO_2023$diet_item <- row.names(total_FOO_2023)
 
 ggplot(total_FOO_2023, aes(x = reorder(diet_item, -FOO), y = FOO)) +
   geom_bar(stat = "identity", fill = "skyblue") +
-  labs(title = "Prevalence of Diet Items (Summer)", x = "Diet Item", y = "FOO") +
+  labs(title = "Prevalence of Diet Items (Summer)", x = "Diet Item", y = "FOO") +  # Add plot title
+  coord_cartesian(ylim = c(0, 0.7))
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
@@ -449,22 +454,39 @@ jaccard_index <- vegdist(rbind(transposed_u[,1], transposed_z[,1]), method = "ja
 print(jaccard_index)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ other approach to Jaccard index: 
-# Find the minimum length between the two datasets
-min_length <- min(length(PA_2022), length(PA_2023))
+
 
 # Convert data frames to matrices
 mat_PA_2022 <- as.matrix(PA_2022[,2:28])
 mat_PA_2023 <- as.matrix(PA_2023[,2:28])
 
-# Calculate the intersection (common elements)
-intersection <- sum(mat_PA_2022[1:min_length] & mat_PA_2023[1:min_length])
 
-# Calculate the union (total unique elements)
-union <- sum(mat_PA_2022[1:min_length] | mat_PA_2023[1:min_length])
 
-# Calculate the Jaccard similarity index
-jaccard_index <- intersection / union
+# 27 total diet items. 3 unique diet items in the fall and 5 unique diet items in the summer. 19 diet items overlap for both seasons. 
 
+
+# Load the vegan package
+library(vegan)
+
+# Calculate Jaccard dissimilarity index
+jaccard_index <- vegdist(rbind(mat_PA_2022, mat_PA_2023), method = "jaccard")
+
+
+# Check for missing or infinite values in the dissimilarity matrix
+if (any(is.nan(jaccard_index)) || any(is.infinite(jaccard_index))) {
+  # Handle missing or infinite values (e.g., remove them)
+  jaccard_index <- jaccard_index[!is.nan(jaccard_index) & !is.infinite(jaccard_index)]
+}
+
+# Print the Jaccard dissimilarity index
+print(jaccard_index)
+
+# Compute the mean value of the dissimilarity matrix
+mean_jaccard <- mean(jaccard_index)
+
+print(mean_jaccard)
+
+# Mean jaccard dissimilarity index is 0.8, meaning that approximately 80% of the datasets are the same. This is a relativelty high level of similarity. 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
 # Petraitis' W': 
@@ -512,6 +534,7 @@ levins_index <- 1 / sum(prop_2023^2)
 # Print the result
 print(levins_index)
 
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Shannon's Diversity Index 
 
 # The below code is adapted from the methods from: https://www.researchgate.net/publication/363745467_DNA_metabarcoding_reveals_that_coyotes_in_New_York_City_consume_wide_variety_of_native_prey_species_and_human_food 
@@ -553,7 +576,7 @@ print(t_test_result)
 
 # p-value from this t-test is 0.0068, indicating a statistically significant difference in diversity between seasons. 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PCA Plots
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PCA/NMDS Plots
 
 library(multcompView)
 library(flashClust)
