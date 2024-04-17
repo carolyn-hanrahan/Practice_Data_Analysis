@@ -139,7 +139,7 @@ library(tidyr)
 all_long <- pivot_longer(all_data, cols = c("Fall_FOO", "Summer_FOO"), names_to = "Season", values_to = "FOO")
 
 # Create the bar plot
-ggplot(all_long, aes(x = diet_item, y = FOO, fill = Season)) +
+ggplot(all_long, aes(x = reorder(diet_item, -FOO), y = FOO, fill = Season)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(title = "Fall and Summer FOO of Diet Items",
        x = "Diet Item",
@@ -158,6 +158,9 @@ ggplot(all_long, aes(x = factor(diet_item, level=order), y = FOO, fill = Season)
        y = "FOO",
        fill = "Season") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Rotate x-axis labels vertically
+
+
+
 
 
 # EXAMPLE CODE: create bar plot with specific axis order
