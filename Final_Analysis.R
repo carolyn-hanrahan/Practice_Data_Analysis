@@ -414,6 +414,10 @@ ggplot(results, aes(x = Year, y = SpeciesRichness)) +
   labs(title = "Dietary Richness by Year", x = "Year", y = "Species Richness")
 
 
+
+t.test()
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Jaccard Dissimilarity Index 
@@ -538,7 +542,6 @@ levins_index <- 1 / sum(prop_2023^2)
 print(levins_index)
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Shannon's Diversity Index 
 
 # The below code is adapted from the methods from: https://www.researchgate.net/publication/363745467_DNA_metabarcoding_reveals_that_coyotes_in_New_York_City_consume_wide_variety_of_native_prey_species_and_human_food 
 
@@ -560,10 +563,10 @@ print(overall_shannon_2022)
 # Calculate Shannon's diversity index for all of the 2023 samples: 
 shannon_indices_2023 <- diversity(PA_2023[,2:28], index = "shannon")
 
-# Print Shannon's diversity indices for each sample from 2022 dataset: 
+# Print Shannon's diversity indices for each sample from 2023 dataset: 
 print(shannon_indices_2023)
 
-# Mean shannon's diversity index for all the samples from 2022: 
+# Mean shannon's diversity index for all the samples from 2023: 
 overall_shannon_2023 <- mean(shannon_indices_2023)
 
 print(overall_shannon_2023)

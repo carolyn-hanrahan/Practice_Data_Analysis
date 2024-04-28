@@ -47,15 +47,13 @@ theme_minimal() +
 ggplot(FOO_fall, aes(x = reorder(Diet_Group, -FOO), y = FOO)) +
   geom_bar(stat = "identity", fill = "lightpink") +
   labs(title = "Prevalence of Diet Items by Group (fall)", x = "Diet Group", y = "FOO") +  # Add plot title
-  coord_cartesian(ylim = c(0, 0.7))
-theme_minimal() +
+  coord_cartesian(ylim = c(0, 0.7)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Create barplot with data for the summer samples: 
 ggplot(FOO_summer, aes(x = reorder(Diet_Group, -FOO), y = FOO)) +
   geom_bar(stat = "identity", fill = "skyblue") +
   labs(title = "Prevalence of Diet Items by Group (summer)", x = "Diet Group", y = "FOO") +  # Add plot title
-  coord_cartesian(ylim = c(0, 0.8))
-theme_minimal() +
+  coord_cartesian(ylim = c(0, 0.8)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 

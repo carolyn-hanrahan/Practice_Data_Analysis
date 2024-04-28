@@ -96,14 +96,14 @@ male <- sex_data %>%
 
 
 #__________________________________________________________________________________
-# Calculate FOO for diet type for female/male 
+# Calculate FOO for diet type for FEMALE
 
 # female 
 total_f <- colSums(female[,2:28])
 
 divisor <- 75
 
-total_FOO_female <- total/divisor
+total_FOO_female <- as.data.frame(total_f/divisor)
 
 # Rename columns
 colnames(total_FOO_female) <-  "FOO"
@@ -119,7 +119,61 @@ ggplot(total_FOO_female, aes(x = reorder(diet_item, -FOO), y = FOO)) +
 theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# Calculate FOO for diet type for MALE
+
+# male 
+total_m <- colSums(male[,2:28])
+
+divisor <- 64
+
+total_FOO_male <- as.data.frame(total_m/divisor)
+
+# Rename columns
+colnames(total_FOO_male) <-  "FOO"
+
+total_FOO_male$diet_item <- row.names(total_FOO_male)
+
+# Ordered bar plot 
+
+ggplot(total_FOO_male, aes(x = reorder(diet_item, -FOO), y = FOO)) +
+  geom_bar(stat = "identity", fill = "darkblue") +
+  labs(title = "Prevalence of Diet Items (Male)", x = "Diet Item", y = "FOO") +  # Add plot title
+  coord_cartesian(ylim = c(0, 0.7))  # Set y-axis limits
+theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Combining
+
+# Create the double bar plot
+
+all_data <- cbind(total_FOO_female, total_FOO_male)
+
+all_data <- all_data[,1:3]
+
+# Rename columns
+colnames(all_data) <-  "FOO_female"
+
+# Renaming the third column
+names(all_data)[3] <- "FOO_male"
+
+print(all_data)
+
+# pivot 
+all_long <- pivot_longer(all_data, cols = c("FOO_female", "FOO_male"), names_to = "Sex", values_to = "FOO")
+
+# Create the bar plot
+ggplot(all_long, aes(x = reorder(diet_item, -FOO), y = FOO, fill = Season)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Fall and Summer FOO of Diet Items",
+       x = "Diet Item",
+       y = "FOO",
+       fill = "Season") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Rotate x-axis labels vertically
 
 
 
