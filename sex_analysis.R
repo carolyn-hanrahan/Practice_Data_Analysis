@@ -163,25 +163,43 @@ names(all_data)[3] <- "FOO_male"
 
 print(all_data)
 
+names(all_data)[2] <- "diet_item"
+
 # pivot 
 all_long <- pivot_longer(all_data, cols = c("FOO_female", "FOO_male"), names_to = "Sex", values_to = "FOO")
 
 # Create the bar plot
-ggplot(all_long, aes(x = reorder(diet_item, -FOO), y = FOO, fill = Season)) +
+ggplot(all_long, aes(x = reorder(diet_item, -FOO), y = FOO, fill = Sex)) +
   geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Fall and Summer FOO of Diet Items",
+  labs(title = "FOO of Diet Items: Female vs Male",
        x = "Diet Item",
        y = "FOO",
        fill = "Season") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Rotate x-axis labels vertically
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  scale_fill_manual(values = c("red", "blue"))# Rotate x-axis labels vertically
 
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ statistics 
+
+# ANOVA --> Analysis of Variance between Species Richness and Year 
+
+results <- aov(SpeciesRichness ~ Sex, data= sex_data)
+
+summary(results)
+
+Residuals = residuals(results)
+
+# p-value = 0.00466, therefore a statistically significant result 
+
+# Plotting the residuals from the ANOVA: 
+
+ggplot(results, aes(x = Sex, y = SpeciesRichness)) +
+  geom_boxplot(fill = c("red", "blue"), color = "black") +
+  labs(title = "Dietary Richness: Female vs Male", x = "Sex", y = "Species Richness")
 
 
-
-
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
 
 
 
