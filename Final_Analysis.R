@@ -145,7 +145,8 @@ ggplot(all_long, aes(x = reorder(diet_item, -FOO), y = FOO, fill = Season)) +
        x = "Diet Item",
        y = "FOO",
        fill = "Season") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Rotate x-axis labels vertically
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+scale_fill_manual(values = c("Fall_FOO" = "darkorange", "Summer_FOO" = "skyblue"))# Rotate x-axis labels vertically
 
 # Changing the x-axis to order diet items 
 order <- c('white-tailed deer', 'chicken','eastern cottontail', 'New England cottontail', 'turkey')
@@ -410,16 +411,65 @@ Residuals = residuals(results)
 # Plotting the residuals from the ANOVA: 
 
 ggplot(results, aes(x = Year, y = SpeciesRichness)) +
-  geom_boxplot(fill = c("skyblue", "orange"), color = "black") +
-  labs(title = "Dietary Richness by Year", x = "Year", y = "Species Richness")
+  geom_boxplot(fill = c("darkorange", "skyblue"), color = "black") +
+  labs(title = "Dietary Richness by Season: Fall 2022 and Summer 2023", x = "Season", y = "Species Richness")
 
 
 
-t.test()
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# T-test assuming poisson distribution - 5/2/24 - model 
+library(lmerTest)
+
+
+install.packages("lme4", type = "source")
+
+m <- glmer(SpeciesRichness ~ Year + (1|CoyoteID), data=PA_data, family=poisson)
+
+summary(m) #Better AIC (better fit model)
+
+m1 <- glmer.nb(SpeciesRichness ~ Year + (1|CoyoteID), data=PA_data)
+
+summary(m1)
+
+
+# model incorporating coyote sex and season: 
+
+m2 <- glmer(SpeciesRichness ~ Sex + (1|CoyoteID), data = sex_data, family = poisson)
+
+summary(m2)
+
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+library(emmeans)
+library(ggplot2)
 
+em <- emmeans(m, pairwise ~ Year, type="response")
+
+em_results <- data.frame(em$emmeans)
+
+ggplot(em_results, aes(x = Year, y = rate)) +
+  geom_bar(stat= "identity", fill = c("darkorange", "skyblue"), color = "black") +
+  geom_errorbar(aes(ymin= asymp.LCL, ymax=asymp.UCL), width=.2) +
+  labs(title = "Dietary Richness by Season: Fall 2022 and Summer 2023", x = "Season", y = "Species Richness")
+
+
+
+em2 <- emmeans(m2, pairwise ~ Sex, type="response")
+
+em_results2 <- data.frame(em2$emmeans)
+
+ggplot(em_results2, aes(x = Sex, y = rate)) +
+  geom_bar(stat= "identity", fill = c("red", "blue"), color = "black") +
+  geom_errorbar(aes(ymin= asymp.LCL, ymax=asymp.UCL), width=.2) +
+  labs(title = "Dietary Richness by Sex: Female vs. Male", x = "Season", y = "Species Richness")
+
+
+
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Jaccard Dissimilarity Index 
 
 library(vegan)
@@ -543,7 +593,7 @@ print(levins_index)
 
 
 
-# The below code is adapted from the methods from: https://www.researchgate.net/publication/363745467_DNA_metabarcoding_reveals_that_coyotes_in_New_York_City_consume_wide_variety_of_native_prey_species_and_human_food 
+# The below code is adapted from the methods from: "https://www.researchgate.net/publication/363745467_DNA_metabarcoding_reveals_that_coyotes_in_New_York_City_consume_wide_variety_of_native_prey_species_and_human_food 
 
 library(vegan)
 
@@ -582,6 +632,22 @@ print(t_test_result)
 
 # p-value from this t-test is 0.0068, indicating a statistically significant difference in diversity between seasons. 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ plotting shannon's diversity 
+# Plotting the groups
+boxplot(shannon_indices_2022, shannon_indices_2023, names = c("Fall", "Summer"), 
+        main = "Shannon's Diversity: Fall 2022 vs. Summer 2023", ylab = "Shannon's Diversity", col = c("darkorange", "skyblue"))
+
+# Adding t-test results to the plot
+text(x = 1.5, y = max(c(shannon_indices_female, shannon_indices_male)) + 10, 
+     labels = sprintf("t = %.2f, p = %.3f", 
+                      t_test_result$statistic, t_test_result$p.value),
+     adj = 0.5)
+
+
+
+
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PCA/NMDS Plots
 
 library(multcompView)
@@ -616,5 +682,8 @@ dist_matrix <- na.omit(dist_matrix)
 
 # Perform NMDS analysis
 nmds_result <- metaMDS(dist_matrix)
+
+
+#
 
 

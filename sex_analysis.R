@@ -174,7 +174,7 @@ ggplot(all_long, aes(x = reorder(diet_item, -FOO), y = FOO, fill = Sex)) +
   labs(title = "FOO of Diet Items: Female vs Male",
        x = "Diet Item",
        y = "FOO",
-       fill = "Season") +
+       fill = "Sex") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
   scale_fill_manual(values = c("red", "blue"))# Rotate x-axis labels vertically
 
@@ -182,7 +182,7 @@ ggplot(all_long, aes(x = reorder(diet_item, -FOO), y = FOO, fill = Sex)) +
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ statistics 
 
-# ANOVA --> Analysis of Variance between Species Richness and Year 
+# ANOVA --> Analysis of Variance between Species Richness and Sex 
 
 results <- aov(SpeciesRichness ~ Sex, data= sex_data)
 
@@ -190,7 +190,7 @@ summary(results)
 
 Residuals = residuals(results)
 
-# p-value = 0.00466, therefore a statistically significant result 
+# p-value = 0.961, therefore not a statistically significant difference.  
 
 # Plotting the residuals from the ANOVA: 
 
@@ -200,6 +200,96 @@ ggplot(results, aes(x = Sex, y = SpeciesRichness)) +
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
+# Shannon's diversity 
+
+library(vegan)
+
+
+# Calculate Shannon's diversity index for all of the male samples: 
+shannon_indices_male <- diversity(male[,2:28], index = "shannon")
+
+# Print Shannon's diversity indices for each sample (male) 
+print(shannon_indices_male)
+
+# Mean shannon's diversity index for all the male samples 
+overall_shannon_male <- mean(shannon_indices_male)
+
+print(overall_shannon_male)
+
+# value = 1.0366 indicating ______
+
+# Calculate Shannon's diversity index for all of the 2023 samples: 
+shannon_indices_female <- diversity(female[,2:28], index = "shannon")
+
+# Print Shannon's diversity indices for each female sample  
+print(shannon_indices_female)
+
+# Mean shannon's diversity index for all the samples from 2023: 
+overall_shannon_female <- mean(shannon_indices_female)
+
+print(overall_shannon_female)
+# value = 1.006621. There is reasonable/moderate variation/diversity on average. The diversity is higher than that of the 2022 data. 
+
+# Test for statistical significance:
+
+# T-test on the Shannon's diversity indices calculated in the above steps: 
+t_test_result <- t.test(shannon_indices_male, shannon_indices_female)
+
+# Print the results
+print(t_test_result)
+
+# p-value from this t-test is 0.7792, indicating NO statistically significant difference in diversity between male/female based on shannon's diversity  
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ trying a new plot: 
+
+# Plotting the groups
+boxplot(shannon_indices_female, shannon_indices_male, names = c("Female", "Male"), 
+        main = "Shannon's Diversity: Female vs. Male", ylab = "Shannon's Diversity", col = c("red", "blue"))
+
+# Adding t-test results to the plot
+text(x = 1.5, y = max(c(shannon_indices_female, shannon_indices_male)) + 10, 
+     labels = sprintf("t = %.2f, p = %.3f", 
+                      t_test_result$statistic, t_test_result$p.value),
+     adj = 0.5)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ more advanced ggplot
+
+
+# Jaccard index for sex 
+
+# Load the vegan package
+library(vegan)
+
+# create matrices
+mat_female <- female[,2:28]
+
+mat_female <- as.matrix(mat_female)
+
+mat_male <- male[,2:28]
+
+mat_male <- as.matrix(mat_male)
+
+# Calculate Jaccard dissimilarity index
+jaccard_index <- vegdist(rbind(mat_female, mat_male), method = "jaccard")
+
+
+# Check for missing or infinite values in the dissimilarity matrix
+if (any(is.nan(jaccard_index)) || any(is.infinite(jaccard_index))) {
+  # Handle missing or infinite values (e.g., remove them)
+  jaccard_index <- jaccard_index[!is.nan(jaccard_index) & !is.infinite(jaccard_index)]
+}
+
+# Print the Jaccard dissimilarity index
+print(jaccard_index)
+
+# Compute the mean value of the dissimilarity matrix
+mean_jaccard <- mean(jaccard_index)
+
+print(mean_jaccard)
+
+# Hmmmmmm 0.806 <- does this make sense?***
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 
 
