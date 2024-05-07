@@ -176,7 +176,7 @@ ggplot(all_long, aes(x = reorder(diet_item, -FOO), y = FOO, fill = Sex)) +
        y = "FOO",
        fill = "Sex") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  scale_fill_manual(values = c("red", "blue"))# Rotate x-axis labels vertically
+  scale_fill_manual(values = c("thistle3", "lightslateblue"))# Rotate x-axis labels vertically
 
 
 

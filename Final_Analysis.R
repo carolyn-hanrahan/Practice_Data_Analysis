@@ -432,11 +432,28 @@ m1 <- glmer.nb(SpeciesRichness ~ Year + (1|CoyoteID), data=PA_data)
 summary(m1)
 
 
-# model incorporating coyote sex and season: 
+# model incorporating coyote sex 
 
 m2 <- glmer(SpeciesRichness ~ Sex + (1|CoyoteID), data = sex_data, family = poisson)
 
 summary(m2)
+
+
+# model incorporating sex and season: 
+
+m3 <- lmer(SpeciesRichness ~ Year + Sex + (1|CoyoteID), data=sex_data)
+summary(m3)
+
+em3 <- emmeans(m3, ~Year:Sex)
+
+em3_result <- data.frame(em3)
+
+ggplot(data = em3_result, mapping = aes(x=Year, y = emmean, fill = Sex))+
+  geom_bar(stat = "identity", position = position_dodge())+
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.3, position = position_dodge(0.9))+
+  theme_classic()+
+  labs(title = "Species Richness by Season (2022 vs 2023) and Sex", x = "Year", y = "Species Richness")+
+  scale_fill_manual(values = c('thistle','lightslateblue'))
 
 
 
@@ -460,10 +477,9 @@ em2 <- emmeans(m2, pairwise ~ Sex, type="response")
 em_results2 <- data.frame(em2$emmeans)
 
 ggplot(em_results2, aes(x = Sex, y = rate)) +
-  geom_bar(stat= "identity", fill = c("red", "blue"), color = "black") +
+  geom_bar(stat= "identity", fill = c("thistle3", "lightslateblue"), color = "black") +
   geom_errorbar(aes(ymin= asymp.LCL, ymax=asymp.UCL), width=.2) +
   labs(title = "Dietary Richness by Sex: Female vs. Male", x = "Season", y = "Species Richness")
-
 
 
 
@@ -642,10 +658,6 @@ text(x = 1.5, y = max(c(shannon_indices_female, shannon_indices_male)) + 10,
      labels = sprintf("t = %.2f, p = %.3f", 
                       t_test_result$statistic, t_test_result$p.value),
      adj = 0.5)
-
-
-
-
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PCA/NMDS Plots
