@@ -484,7 +484,6 @@ ggplot(em_results2, aes(x = Sex, y = rate)) +
 
 
 
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Jaccard Dissimilarity Index 
 
@@ -541,16 +540,45 @@ mat_PA_2023 <- as.matrix(PA_2023[,2:28])
 # Load the vegan package
 library(vegan)
 
+jaccard_data <- PA_data[,2:28]
+
+jd <- jaccard_data[rowSums(jaccard_data)>0, ]
+
 # Calculate Jaccard dissimilarity index
-jaccard_index <- vegdist(rbind(mat_PA_2022, mat_PA_2023), method = "jaccard")
+jaccard_index <- vegdist(jd, method = "jaccard", binary = T)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~NMDS~~~~~~~~~~~~~~~~~~~~~~~~~~~ May 8th, 2024 
+library(vegan)
+
+MDS_object <- metaMDS(jaccard_index, k=2)
+
+plot(MDS_object)
+
+# extract NMDS scores to plot by groups/colors: 
+
+data.scores <- as.data.frame(scores(MDS_object))
+
+# add columns to dataframe with year 
+PA_data1 <- sex_data[rowSums(jaccard_data)>0, ]
+
+data.scores$Year <- PA_data1$Year
+data.scores$Sex <- PA_data1$Sex
+
+# plot 
+library(ggplot2)
+
+ggplot(data.scores, aes(x=NMDS1, y=NMDS2, colour=Year)) + 
+  geom_point(size=4, aes(shape=Sex)) +
+  scale_color_manual(values = c("orange", "skyblue")) +
+  scale_shape_manual(values = c(1,16)) +
+  stat_ellipse()
+  
+# not very different, lots of overlap 
+# 2023 = more concentrated, within 2023 there is less dissimilarity. If there is higher dietary diversity in the summer, there is more likelihood for overlap. Therefore more similarity exists in summer than in the fall. 
 
 
-# Check for missing or infinite values in the dissimilarity matrix
-if (any(is.nan(jaccard_index)) || any(is.infinite(jaccard_index))) {
-  # Handle missing or infinite values (e.g., remove them)
-  jaccard_index <- jaccard_index[!is.nan(jaccard_index) & !is.infinite(jaccard_index)]
-}
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
 # Print the Jaccard dissimilarity index
 print(jaccard_index)
 
@@ -589,23 +617,7 @@ petraitis_W <- 1 - sum(prop_2023^2)
 print(petraitis_W)
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# Levin's Measure of Niche Breadth.......
-# Levin's niche breadth ranges from 1 to n, where 1 indicates that a species utilizes only one resource/environmental condition 
-
-# Calculate Levin's index 2022
-levins_index <- 1 / sum(prop_2022^2)
-
-# Print the result
-print(levins_index)
-# Result: 1.43 indicates relatively broad resource usage 
-
-# Calculate Levin's index 2023
-levins_index <- 1 / sum(prop_2023^2)
-
-# Print the result
-print(levins_index)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
@@ -662,40 +674,48 @@ text(x = 1.5, y = max(c(shannon_indices_female, shannon_indices_male)) + 10,
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ PCA/NMDS Plots
 
-library(multcompView)
-library(flashClust)
-library(FactoMineR)
-library(factoextra)
+# library(multcompView)
+# library(flashClust)
+# library(FactoMineR)
+# library(factoextra)
+# 
+# # Perform PCA 2022
+# pca_result <- PCA(mat_PA_2022, graph = FALSE)
+# 
+# # Plot results
+# plot.PCA(pca_result)
+# 
+# 
+# # Perform PCA 2023 
+# pca_result <- PCA(mat_PA_2023, graph = FALSE)
+# 
+# # Plot results
+# plot.PCA(pca_result)
+# 
+# 
+# # Combined NMDS/PCA plot for both seasons 
+# PCA_data <- PA_data[,2:29]
+# 
+# # Ensure that 'Year' column is a factor
+# PCA_data$Year <- factor(PCA_data$Year)
+# 
+# # Compute Bray-Curtis dissimilarity matrix
+# dist_matrix <- vegdist(PCA_data[, -which(names(PCA_data) == "Year")], method = "bray")
+# 
+# dist_matrix <- na.omit(dist_matrix)
+# 
+# # Perform NMDS analysis
+# nmds_result <- metaMDS(dist_matrix)
 
-# Perform PCA 2022
-pca_result <- PCA(mat_PA_2022, graph = FALSE)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~NMDS~~~~~~~~~~~~~~~~~~~~~~~~~~~ May 8th, 2024 
+library(vegan)
 
-# Plot results
-plot.PCA(pca_result)
-
-
-# Perform PCA 2023 
-pca_result <- PCA(mat_PA_2023, graph = FALSE)
-
-# Plot results
-plot.PCA(pca_result)
+MDS_object <- metaMDS(jaccard_index, k=2)
 
 
-# Combined NMDS/PCA plot for both seasons 
-PCA_data <- PA_data[,2:29]
-
-# Ensure that 'Year' column is a factor
-PCA_data$Year <- factor(PCA_data$Year)
-
-# Compute Bray-Curtis dissimilarity matrix
-dist_matrix <- vegdist(PCA_data[, -which(names(PCA_data) == "Year")], method = "bray")
-
-dist_matrix <- na.omit(dist_matrix)
-
-# Perform NMDS analysis
-nmds_result <- metaMDS(dist_matrix)
 
 
-#
+
+
 
 
