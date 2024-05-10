@@ -577,8 +577,52 @@ ggplot(data.scores, aes(x=NMDS1, y=NMDS2, colour=Year)) +
 # 2023 = more concentrated, within 2023 there is less dissimilarity. If there is higher dietary diversity in the summer, there is more likelihood for overlap. Therefore more similarity exists in summer than in the fall. 
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ adding diet items to NMDS plot~~~~~~~~~ May 10th, 2024 
+library(vegan)
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
+# fit <- envfit(MDS_object, jaccard_index, permutations = 999)
+# 
+# head(fit)
+# 
+# ordiplot(MDS_object, type="n", main="title")
+# orditorp(MDS_object, display = "sites", labels = F)
+# plot(fit, p.max= 0.001, col="black", cex= 0.7)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Plotting "correlation"/phi coefficients 
+library(reshape2)
+phi_co <- cor(jaccard_data)
+
+# melt to reformat
+melted_phi_co <- melt(phi_co)
+
+#plot 
+library(ggplot2)
+ggplot(data=melted_phi_co, aes(x=Var1, y=Var2,
+                               fill = value)) +
+  geom_tile() + 
+  theme(axis.text.x = element_text(angle = 45, vjust =1, hjust =1))
+
+# reorder corr matrix
+# using corr coefficient as distance metric
+dist <- as.dist((1-phi_co)/2)
+
+# hierarchical clustering the dist matrix
+hc <- hclust(dist)
+phi_co <-phi_co[hc$order, hc$order]
+
+# reduce the size of correlation matrix
+melted_corr_mat <- melt(phi_co)
+#head(melted_corr_mat)
+
+#plotting the correlation heatmap
+library(ggplot2)
+ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile() + 
+  theme(axis.text.x = element_text(angle = 45, vjust =1, hjust =1))
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Print the Jaccard dissimilarity index
 print(jaccard_index)
 
